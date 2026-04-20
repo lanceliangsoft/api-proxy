@@ -1,0 +1,21 @@
+header {
+  display: flex;
+  background-color: #3d57da;
+  color: #fff;
+  align-items: center;
+  align-content: space-between;
+  justify-content: space-between;
+}
+
+header .title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  padding: 1rem;
+}
+
+header .info {
+  font-size: 1rem;
+  margin-top: 0.5rem;
+  padding-left: 10px;
+  padding-right: 10px;
+}

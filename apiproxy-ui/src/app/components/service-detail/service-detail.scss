@@ -1,0 +1,21 @@
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.item {
+  margin: 0.5rem;
+}
+
+.hbox {
+  display: flex;
+  flex-direction: row;
+  margin: 0.5rem;
+}

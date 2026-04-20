@@ -1,0 +1,6 @@
+curl -k --proxy http://localhost:8001 https://www.google.com
+
+curl -k --proxy http://localhost:8001 https://www.microsoft.com
+
+curl -k --proxy http://localhost:8001 https://gemini.google.com
+

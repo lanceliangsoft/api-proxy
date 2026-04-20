@@ -1,0 +1,14 @@
+  <div class="buttons">
+    <mat-form-field class="formats">
+      <mat-label class="formats">Format:</mat-label>
+
+      <mat-select [(ngModel)]="format" class="formats">
+        @for(format of formats; track format) {
+          <mat-option [value]="format">{{format}}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <button mat-button (click)="generate()">Generate</button>
+    <button mat-button (click)="copy(codeOut)">Copy</button>
+  </div>
+  <textarea #codeOut class="code">{{code()}}</textarea>

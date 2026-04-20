@@ -1,0 +1,34 @@
+@if (editMode()) {
+  <h2>Edit Mapped Service</h2>
+} @else {
+  <h2>Add Mapped Service</h2>
+}
+
+<form [formGroup]="serviceForm" (ngSubmit)="save()">
+  <div class="form-group">
+    <mat-form-field class="item">
+      <mat-label>Service Name:</mat-label>
+      <input matInput formControlName="name" [readonly]="editMode()">
+    </mat-form-field>
+
+    <mat-form-field class="item">
+      <mat-label>Local Port:</mat-label>
+      <input matInput type="number" formControlName="port" [readonly]="editMode()">
+    </mat-form-field>
+
+    <mat-form-field class="item">
+      <mat-label>Forward URL:</mat-label>
+      <input matInput formControlName="forward_url">
+    </mat-form-field>
+
+    <label class="hbox">
+      <mat-slide-toggle formControlName="active" [disabled]="'console-api'===service()?.name">Active</mat-slide-toggle>
+      <mat-slide-toggle [checked]="service()?.up" [disabled]="true">Up</mat-slide-toggle>
+    </label>
+
+    <div>
+      <button mat-raised-button color="primary" type="submit">Save</button>
+      <button mat-raised-button color="warn" (click)="reset()">Reset</button>
+    </div>
+  </div>
+</form>
