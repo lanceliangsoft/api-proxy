@@ -20,7 +20,9 @@ def run_mapped_service(
         ssl_context=ssl_context,
     ) as httpd:
         print(f"Mapped service running on port {service.port}...")
+        AppState.httpds[service.name] = httpd
         httpd.serve_forever()
+        del AppState.httpds[service.name]
 
 
 def read_props(props_file: str) -> Dict[str, str]:

@@ -90,12 +90,15 @@ class Engine:
         http_proxy_thread.start()
 
     async def stop_service(self, service_name: str):
-        server = AppState.servers.get(service_name)
-        if server:
+        if server := AppState.servers.get(service_name):
             print(f"stopping {service_name}...")
             del AppState.servers[service_name]
             server.close()
             await server.wait_closed()
+        elif httpd := AppState.httpds.get(service_name):
+            print(f"stopping {service_name}...")
+            httpd.shutdown()
+            await asyncio.sleep(1)  # wait for server to shutdown
         else:
             print(f"server not found for {service_name}.")
 

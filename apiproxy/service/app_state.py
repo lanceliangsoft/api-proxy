@@ -1,5 +1,6 @@
 import ssl
 import asyncio
+import http.server
 from typing import Dict, Optional, List, Any
 from .models import MappedService, Traffic, TrafficEntity
 from .crud import (
@@ -22,6 +23,7 @@ class AppState:
     current_env: str = ""
     services: List[MappedService] = []
     servers: Dict[str, asyncio.Server] = {}
+    httpds: Dict[str, http.server.HTTPServer] = {}
     engine: Optional[Any] = None
 
     @classmethod
@@ -34,7 +36,9 @@ class AppState:
 
     @classmethod
     def is_service_up(cls, service_name: str) -> bool:
-        return service_name == 'console-api' or service_name in cls.servers
+        return service_name == 'console-api' \
+            or service_name in cls.servers \
+            or service_name in cls.httpds
 
 
     '''

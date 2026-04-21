@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 from sqlmodel import Session
-from apiproxy.service.rest import app
+from apiproxy.service.api import app
 from apiproxy.service.models import MappedService, Traffic
 
 client = TestClient(app)

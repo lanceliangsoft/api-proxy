@@ -10,7 +10,7 @@ async def generate_curl(traffic: Traffic) -> str:
     for key, value in traffic.req_headers.items():
         if key.lower() not in excluded_headers:
             cmd += f' \\\n-H "{key}: {value}"'
-    if traffic.method == "PUT" or traffic.method == "PUT":
+    if traffic.method == "PUT" or traffic.method == "POST":
         cmd += f" \\\n-d '{encode_body(traffic.req_body)}'"
     return cmd
 
@@ -23,7 +23,7 @@ async def generate_curl_windows(traffic: Traffic) -> str:
     for key, value in traffic.req_headers.items():
         if key.lower() not in excluded_headers:
             cmd += f' ^\n-H "{key}: {value}"'
-    if traffic.method == "PUT" or traffic.method == "PUT":
+    if traffic.method == "PUT" or traffic.method == "POST":
         cmd += f' ^\n-d "{encode_body_windows(traffic.req_body)}"'
     return cmd
 

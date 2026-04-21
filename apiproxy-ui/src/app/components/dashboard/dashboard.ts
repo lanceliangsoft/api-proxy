@@ -101,7 +101,7 @@ export class Dashboard implements OnInit {
     const servicesInfo = await this._consoleService.getServices();
     this.services.set(servicesInfo.services);
 
-    const trafficsInfo = await this._consoleService.retrieveTraffics('http-proxy');
+    const trafficsInfo = await this._consoleService.retrieveTraffics(this.selectedService()?.name || 'http-proxy');
     this.traffics.set(trafficsInfo.traffics);
   }
 
