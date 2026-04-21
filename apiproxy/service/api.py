@@ -65,7 +65,9 @@ async def switch_service(
 
 
 @app.delete("/api/services/{service_name}")
-async def delete_service(service_name: str):
+async def delete_service(engine: EngineDep, service_name: str):
+    print(f">>Received request to delete service {service_name}...")
+    await engine.remove_service(service_name)
     return {"service_name": service_name, "status": "deleted"}
 
 
@@ -96,12 +98,4 @@ async def get_next_port(
 
 
 def run_fastapi(port: int) -> None:
-    print("fastapi thread:", threading.get_ident())
-    engine: Engine = AppState.engine
-    engine.create_service(
-        service=MappedService(
-            name="console-api", port=port, forward_url="", active=True, up=True
-        )
-    )
-
     uvicorn.run(app, host="0.0.0.0", port=port)

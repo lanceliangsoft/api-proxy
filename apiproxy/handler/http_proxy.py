@@ -5,7 +5,7 @@ import ssl
 from datetime import datetime
 from typing import Optional
 from .base_server import BaseConnection, HttpRequest, TcpServer, parse_request
-from ..service.models import Traffic, HttpRequest, HttpResponse
+from ..service.models import Traffic, HttpRequest, HttpResponse, MappedService
 from ..service.app_state import AppState
 from .http_util import (
     read_block_till,
@@ -16,8 +16,8 @@ from .http_util import (
 )
 
 
-def run_http_proxy(port: int, ssl_context: Optional[ssl.SSLContext] = None) -> None:
-    http_proxy_server = HttpProxyServer("0.0.0.0", port, ssl_context=ssl_context)
+def run_http_proxy(service: MappedService, ssl_context: Optional[ssl.SSLContext] = None) -> None:
+    http_proxy_server = HttpProxyServer("0.0.0.0", service.port, ssl_context=ssl_context)
     asyncio.run(http_proxy_server.start())
 
 

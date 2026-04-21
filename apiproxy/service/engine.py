@@ -19,6 +19,7 @@ from .crud import (
     select_service_by_name,
     insert_service,
     update_service,
+    delete_service,
 )
 
 
@@ -32,8 +33,10 @@ def is_port_available(port: int) -> bool:
 
 def start_servers():
     engine: Engine = engine_factory(session=next(get_db()))
-    engine.start_service("http-proxy")
 
+    for service in engine.get_services():
+        if service.name != 'console-api' and service.active:
+            engine.start_service(service.name)
 
 class Engine:
     def __init__(self, session: SessionDep):
@@ -76,12 +79,13 @@ class Engine:
         )
 
     def start_service(self, service_name: str):
+        print(f"Starting service {service_name}...")
         service_info: MappedService = self.get_service(service_name)
         run_proc = (
             run_http_proxy if service_name == "http-proxy" else run_mapped_service
         )
         http_proxy_thread = threading.Thread(
-            target=run_proc, args=(service_info.port, self._ssl_context), daemon=True
+            target=run_proc, args=(service_info, self._ssl_context), daemon=True
         )
         http_proxy_thread.start()
 
@@ -180,6 +184,16 @@ class Engine:
             asyncio.sleep(1)  # wait for server to start
 
         return self.get_service(service.name)
+    
+    async def remove_service(self, service_name: str):
+        print(f">>Deleting service {service_name}...")
+        if AppState.is_service_up(service_name):
+            await self.stop_service(service_name)
+
+        # delete from db
+        service_entity = select_service_by_name(self._session, service_name)
+        if service_entity:
+            delete_service(self._session, service_name)
 
     def get_next_port(self, start: int, end: int) -> Optional[int]:
         services = self.get_services()

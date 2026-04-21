@@ -47,6 +47,12 @@ export class ConsoleService {
     return await response.json();
   }
 
+  async deleteService(serviceName: string): Promise<void> {
+    await fetch(`${this.baseUrl}/api/services/${serviceName}`, {
+      method: 'DELETE'
+    });
+  }
+
   async retrieveTraffics(serviceName: string): Promise<TrafficsResponse> {
     const response = await fetch(`${this.baseUrl}/api/traffics/${serviceName}`);
     const data = await response.json();

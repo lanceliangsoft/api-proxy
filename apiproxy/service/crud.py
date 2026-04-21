@@ -2,7 +2,7 @@ import os
 from datetime import datetime
 from typing import Annotated, Any, Dict, List, Optional
 from fastapi import Depends
-from sqlmodel import Session, select, update, create_engine, Session, SQLModel
+from sqlmodel import Session, select, update, delete, create_engine, Session, SQLModel
 from .models import TrafficEntity, MappedServiceEntity
 from .config import settings
 
@@ -45,12 +45,21 @@ def insert_service(
 
 
 def update_service(session: Session, service: MappedServiceEntity) -> None:
-    session.exec(
-        update(MappedServiceEntity)
-        .where(MappedServiceEntity.name == service.name)
-        .values(**service.model_dump(exclude_unset=True))
-    )
-    session.commit()
+    entity = session.get(MappedServiceEntity, service.name)
+    if entity is not None:
+        entity.port = service.port
+        entity.forward_url = service.forward_url
+        entity.active = service.active
+        session.add(entity)
+        session.commit()
+
+
+def delete_service(session: Session, service_name: str) -> None:
+    print(f"deleting service {service_name} from db...")
+    entity = session.get(MappedServiceEntity, service_name)
+    if entity is not None:
+        session.delete(entity)
+        session.commit()
 
 
 def create_traffic(session: Session, traffic: TrafficEntity) -> TrafficEntity:

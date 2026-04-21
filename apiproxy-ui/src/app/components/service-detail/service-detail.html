@@ -29,6 +29,9 @@
     <div>
       <button mat-raised-button color="primary" type="submit">Save</button>
       <button mat-raised-button color="warn" (click)="reset()">Reset</button>
+      @if (deletable()) {
+       <button mat-raised-button (click)="delete()">Delete</button>
+      }
     </div>
   </div>
 </form>

@@ -1,15 +1,26 @@
 # Mapping a remote REST service at a local port.
-from http.server import BaseHTTPRequestHandler
+from http.server import HTTPServer, BaseHTTPRequestHandler
 import urllib3
 import time
+from datetime import datetime, timezone
 import ssl
 from typing import Optional, Tuple, Dict, Any
 from ..service.app_state import AppState
+from ..service.models import MappedService, Traffic
 from .http_util import exclude_headers
 
 
-def run_mapped_service(port: int, ssl_context: Optional[ssl.SSLContext] = None) -> None:
-    pass
+def run_mapped_service(
+    service: MappedService, ssl_context: Optional[ssl.SSLContext] = None
+) -> None:
+    with ProxyHTTPServer(
+        ("0.0.0.0", service.port),
+        ProxyHTTPRequestHandler,
+        service_info=service,
+        ssl_context=ssl_context,
+    ) as httpd:
+        print(f"Mapped service running on port {service.port}...")
+        httpd.serve_forever()
 
 
 def read_props(props_file: str) -> Dict[str, str]:
@@ -36,9 +47,21 @@ def to_dict(headers) -> Dict[str, str]:
     return {k.lower(): v for k, v in headers.items()}
 
 
+class ProxyHTTPServer(HTTPServer):
+    service_info: MappedService
+    ssl_context: Optional[ssl.SSLContext]
+
+    def __init__(
+        self, server_address, RequestHandlerClass, service_info=None, ssl_context=None
+    ):
+        super().__init__(server_address, RequestHandlerClass)
+        self.ssl_context = ssl_context
+        self.service_info = service_info
+        print(f"Initialized ProxyHTTPServer for service {service_info.name} on {server_address}")
+
+
 class ProxyHTTPRequestHandler(BaseHTTPRequestHandler):
-    def __init__(self, service_name: str, *args, **kwargs):
-        self._service_name = service_name
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     def handle_locally(self, _method: str) -> Tuple[bool, int, Dict[str, str], bytes]:
@@ -59,6 +82,19 @@ class ProxyHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_PATCH(self):
         self._handle_request("PATCH")
 
+    def _handle_request(self, method: str):
+        print(f"Received {method} request for {self.path} on service server={self.server} {self.server.service_info.name if self.server.service_info else 'Unknown'}...")
+        content_length = int(self.headers.get("Content-Length", 0))
+        self.req_body = self.rfile.read(content_length) if content_length > 0 else b""
+
+        handle_locally, status, headers, body = self.handle_locally(method)
+        if handle_locally:
+            self._send_response(status, headers, body)
+        else:
+            resp = self._retrieve(method)
+            status, headers, body = self.process_response(resp)
+            self._send_response(status, headers, body)
+
     def _retrieve(self, method: str) -> Any:
         start_time = time.time()
 
@@ -67,11 +103,11 @@ class ProxyHTTPRequestHandler(BaseHTTPRequestHandler):
             if key.lower() not in exclude_headers:
                 headers[key] = self.headers[key]
 
-        forward_host = AppState.get_forward_host(self._service_name)
-        assert forward_host, (
-            f"No forward host configured for service {self._service_name}"
+        forward_url = self.server.service_info.forward_url
+        assert forward_url, (
+            f"No forward URL configured for service {self.server.service_info.name}"
         )
-        url = forward_host.url + self.path
+        url = forward_url + self.path
         print(f"Forwarding to {method} {url}, headers: {headers}")
 
         http = urllib3.PoolManager(cert_reqs=ssl.CERT_NONE)
@@ -80,15 +116,16 @@ class ProxyHTTPRequestHandler(BaseHTTPRequestHandler):
             url,
             headers=headers,
             body=self.req_body,
-            context=forward_host.get_context(),
+            #context=self.server.ssl_context,  # type: ignore
         )
+        resp_headers = to_dict(resp.headers)
         self._log_traffic(
             method,
             url,
             headers,
             self.req_body,
             resp.status,
-            resp.headers,
+            resp_headers,
             resp.data,
             time.time() - start_time,
         )
@@ -105,18 +142,19 @@ class ProxyHTTPRequestHandler(BaseHTTPRequestHandler):
         resp_body: bytes,
         duration: float,
     ):
-        AppState.get_traffics_of_service(self._service_name).append(
-            {
-                "method": method,
-                "url": url,
-                "req_headers": req_headers,
-                "req_body": brief(req_body),
-                "resp_status": resp_status,
-                "resp_headers": resp_headers,
-                "resp_body": brief(resp_body),
-                "time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
-                "duration": duration,
-            }
+        AppState.add_traffic(
+            traffic=Traffic(
+                service_name=self.server.service_info.name,
+                method=method,
+                url=url,
+                req_headers=req_headers,
+                req_body=req_body,
+                status_code=resp_status,
+                resp_headers=resp_headers,
+                resp_body=resp_body,
+                timestamp=datetime.now(timezone.utc),
+                duration_ms=int(duration * 1000),
+            )
         )
 
     def process_response(self, resp) -> Tuple[int, Dict[str, str], bytes]:

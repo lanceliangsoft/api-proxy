@@ -34,3 +34,7 @@ export function formatTimestamp(timestamp: string | undefined): string {
 
   return `${year}-${month}-${day} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
 }
+
+export function simplifyName(host: string): string {
+  return host.replace(/^www\./, '').replace(/(\.com)(:\d+)$/, '');
+}

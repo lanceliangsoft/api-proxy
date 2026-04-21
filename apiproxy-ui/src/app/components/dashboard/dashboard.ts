@@ -123,7 +123,12 @@ export class Dashboard implements OnInit {
   onServiceAdded(service: ServiceItem) {
     console.log('onServiceAdded:', JSON.stringify(service));
     this.services.update(services => [...services, service]);
-    //this.selectedService.set(service);
-    //this.detailView.set('service');
+  }
+
+  onServiceDeleted(serviceName: string) {
+    console.log('onServiceDeleted:', serviceName);
+    this.services.update(services => services.filter(s => s.name !== serviceName));
+    this.selectedService.set(undefined);
+    this.detailView.set('traffic');
   }
 }

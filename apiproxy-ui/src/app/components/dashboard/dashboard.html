@@ -42,7 +42,8 @@
       <app-traffic-detail [traffic]="selectedTraffic()"></app-traffic-detail>
       } @else if(detailView() === 'service') {
       <app-service-detail [service]="selectedService()" [newServiceHost]="newServiceHost()"
-        (serviceAdded)="onServiceAdded($event)"></app-service-detail>
+        (serviceAdded)="onServiceAdded($event)"
+        (serviceDeleted)="onServiceDeleted($event)"/>
       } @else if(detailView() === 'unmapped-group') {
         <app-unmapped-group [group]="selectedGroup()"
           (addService)="onAddService()"></app-unmapped-group>

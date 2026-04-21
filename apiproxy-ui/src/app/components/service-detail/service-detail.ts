@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { getUrlFromHost } from '../../utils/restUtil';
+import { simplifyName } from '../../utils/utils';
 
 @Component({
   selector: 'app-service-detail',
@@ -20,9 +21,12 @@ export class ServiceDetail implements OnInit {
   private _consoleService = inject(ConsoleService);
 
   @Output() serviceAdded = new EventEmitter<ServiceItem>(true);
+  @Output() serviceDeleted = new EventEmitter<string>(true);
+
   service = input<ServiceItem | undefined>(undefined);
   newServiceHost = input<string>('');
   editMode = computed(() => this.service() !== undefined);
+  deletable = computed(() => !(this.service()?.name === 'console-api' || this.service()?.name === 'http-proxy'));
 
   // signal Form is buggy, use reactive form instead.
   serviceForm = new FormGroup({
@@ -44,7 +48,7 @@ export class ServiceDetail implements OnInit {
   async save() {
       const formValue = this.serviceForm.value;
       const service: ServiceItem = {
-        name: formValue.name || this.newServiceHost() || '',
+        name: formValue.name || simplifyName(this.newServiceHost()) || '',
         port: formValue.port ? parseInt(formValue.port, 10) : await this._consoleService.getNextAvailablePort(8000),
         forward_url: formValue.forward_url || '',
         active: formValue.active || false,
@@ -71,6 +75,18 @@ export class ServiceDetail implements OnInit {
     }
   }
 
+  async delete() {
+    const service = this.service();
+    if (service && confirm(`Are you sure you want to delete service "${service.name}"?`)) {
+      try {
+        await this._consoleService.deleteService(service.name);
+        this.serviceDeleted.emit(service.name);
+      } catch (error) {
+        console.error('Failed to delete service:', error);
+      }
+    }
+  }
+
   async reset() {
     const service = this.service();
     if (service) {
@@ -82,7 +98,7 @@ export class ServiceDetail implements OnInit {
       });
     } else {
       this.serviceForm.setValue({
-        name: this.newServiceHost() || '',
+        name: simplifyName(this.newServiceHost()) || '',
         port: '' + await this._consoleService.getNextAvailablePort(8000),
         forward_url: getUrlFromHost(this.newServiceHost()),
         active: false
