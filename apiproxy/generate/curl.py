@@ -1,8 +1,9 @@
+from typing import List
 from .consts import excluded_headers
-from ..service.models import Traffic
+from ..service.models import GeneratedFile, Traffic
 
 
-async def generate_curl(traffic: Traffic) -> str:
+async def generate_curl(traffic: Traffic) -> List[GeneratedFile]:
     cmd = "curl"
     if traffic.method != "GET":
         cmd += f" --request {traffic.method}"
@@ -12,10 +13,13 @@ async def generate_curl(traffic: Traffic) -> str:
             cmd += f' \\\n-H "{key}: {value}"'
     if traffic.method == "PUT" or traffic.method == "POST":
         cmd += f" \\\n-d '{encode_body(traffic.req_body)}'"
-    return cmd
+    return [GeneratedFile(
+        file_name="curl",
+        content=cmd
+    )]
 
 
-async def generate_curl_windows(traffic: Traffic) -> str:
+async def generate_curl_windows(traffic: Traffic) -> List[GeneratedFile]:
     cmd = "curl -k"
     if traffic.method != "GET":
         cmd += f" --request {traffic.method}"
@@ -25,7 +29,10 @@ async def generate_curl_windows(traffic: Traffic) -> str:
             cmd += f' ^\n-H "{key}: {value}"'
     if traffic.method == "PUT" or traffic.method == "POST":
         cmd += f' ^\n-d "{encode_body_windows(traffic.req_body)}"'
-    return cmd
+    return [GeneratedFile(
+        file_name="curl",
+        content=cmd
+    )]
 
 
 def encode_body(body: bytes) -> str:

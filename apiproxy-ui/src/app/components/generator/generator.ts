@@ -20,7 +20,7 @@ interface GeneratingOptions {
 })
 export class Generator {
   private _consoleService = inject(ConsoleService);
-  formats = ['CURL', 'CURL_WINDOWS', 'SPRING_BOOT_SERVER_MVC', 'SPRINT_BOOT_SERVER_FLUX',
+  formats = ['CURL', 'CURL_WINDOWS', 'SPRING_BOOT_SERVER_WEB_MVC', 'SPRINT_BOOT_SERVER_WEB_FLUX',
     'SPRINT_BOOT_CLIENT_TEMPLATE', 'OPENAPI_JAVA'];
   traffic = input<Traffic | undefined>();
   format = signal<GeneratorFormat>('CURL');
@@ -34,7 +34,19 @@ export class Generator {
       return;
     }
     const response = await this._consoleService.generate(traffic.id, this.format());
-    this.code.set(response.generated);
+
+    let comment_symbol: string;
+    switch (this.format()) {
+      case 'CURL':
+        comment_symbol = '#';
+        break;
+      case 'CURL_WINDOWS':
+        comment_symbol = 'rem';
+        break;
+      default:
+        comment_symbol = '//';
+    }
+    this.code.set(response.files.map(file => `${comment_symbol} ${file.file_name}\n${file.content}\n`).join("\n"));
   }
 
   copy(inputElement: any) {

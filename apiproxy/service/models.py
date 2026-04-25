@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 from datetime import datetime
 from sqlmodel import SQLModel, Field, Column, LargeBinary, DateTime, JSON
 
@@ -46,8 +46,13 @@ class GenerateRequest(SQLModel):
     format: str
 
 
+class GeneratedFile(SQLModel):
+    file_name: str
+    content: str
+
+
 class GenerateResponse(SQLModel):
-    generated: str
+    files: List[GeneratedFile]
 
 
 # db

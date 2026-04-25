@@ -43,6 +43,11 @@ export interface GenerateRequest {
   format: GeneratorFormat,
 }
 
+
+export interface GeneratedFile {
+  file_name: string,
+  content: string
+}
 export interface GenerateResponse {
-  generated: string;
+  files: GeneratedFile[]
 }

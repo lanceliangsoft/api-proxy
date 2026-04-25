@@ -3,10 +3,16 @@ from fastapi import HTTPException
 from ..service.app_state import AppState
 from ..service.models import GenerateRequest, GenerateResponse, Traffic
 from .curl import generate_curl, generate_curl_windows
+from .spring_boot import (
+    generate_spring_boot_server_web_mvc,
+    generate_spring_boot_server_web_flux,
+)
 
 generators: Dict[str, Callable] = {
     "CURL": generate_curl,
     "CURL_WINDOWS": generate_curl_windows,
+    "SPRING_BOOT_SERVER_WEB_MVC": generate_spring_boot_server_web_mvc,
+    "SPRINT_BOOT_SERVER_WEB_FLUX": generate_spring_boot_server_web_flux,
     # TODO: add more generators here
 }
 
@@ -23,6 +29,6 @@ async def generate_code(request: GenerateRequest) -> GenerateResponse:
         raise HTTPException(
             status_code=404,
         )
-    generated_code = await generator(traffic)
+    generated_files = await generator(traffic)
 
-    return GenerateResponse(generated=generated_code)
+    return GenerateResponse(files=generated_files)
