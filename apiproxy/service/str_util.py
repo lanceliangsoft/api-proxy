@@ -30,3 +30,11 @@ def split_path(url: str) -> Tuple[str, str]:
     else:
         return "", url
 
+
+def get_url_path(url: str) -> str:
+    if m := re.search(r"^http[s]?://([^/]+)([^\&]*)(&.*)?$", url):
+        return m.group(2)
+    elif m := re.search(r"^(/[^\&]*)(&.*)?$", url):
+        return m.group(1)
+    else:
+        return url

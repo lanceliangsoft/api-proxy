@@ -7,7 +7,7 @@ from .modeler import ListDef, ClassDef, ValueType
 def generate_java_model(class_def: ClassDef) -> GeneratedFile:
 
     return GeneratedFile(
-        file_name=f"model/{class_def.name}.java",
+        file_name=f"src/main/java/com/example/generated/model/{class_def.name}.java",
         content=generate_java_class(class_def),
     )
 
@@ -32,12 +32,21 @@ def generate_java_class(class_def: ClassDef) -> str:
                 return this.{java_name};
             }}
             
-            public {setter}({java_type} {java_name}) {{
+            public void {setter}({java_type} {java_name}) {{
                 this.{java_name} = {java_name};
+            }}
+
+            public {class_def.name} {java_name}({java_type} {java_name}) {{
+                this.{java_name} = {java_name};
+                return this;
             }}
         """)
 
     return trim_indent(f"""
+        package com.example.generated.model;
+        
+        import com.fasterxml.jackson.annotation.JsonProperty;
+                       
         public class {class_def.name} {{
             {"\n            ".join(field_decls)}
             {"\n".join(accessors)}

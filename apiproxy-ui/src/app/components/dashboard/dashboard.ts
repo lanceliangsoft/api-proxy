@@ -59,6 +59,9 @@ export class Dashboard implements OnInit {
     const service = this.services().find(s => s.name === serviceName);
     this.selectedService.set(service);
     this.detailView.set('service');
+
+    const trafficsInfo = await this._consoleService.retrieveTraffics(serviceName);
+    this.traffics.set(trafficsInfo.traffics);
   }
 
   async onTrafficSelected(traffic: GroupedValues<Traffic> | Traffic) {
