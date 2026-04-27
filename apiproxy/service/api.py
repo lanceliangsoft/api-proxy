@@ -1,10 +1,11 @@
-import threading
-from typing import Any, List
 import uvicorn
+from datetime import datetime
+from typing import Any, List, Optional
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
+import logging
 from .crud import (
     SessionDep,
     query_traffics,
@@ -18,11 +19,12 @@ from .models import (
     SwitchServiceRequest,
     Traffic,
 )
+from .str_util import parse_datetime
 from .engine import Engine, EngineDep
 from ..generate import generate_code
 from .app_state import AppState
 
-
+logger = logging.getLogger(__name__)
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
@@ -72,11 +74,21 @@ async def delete_service(engine: EngineDep, service_name: str):
 
 
 @app.get("/api/traffics/{service_name}")
-async def get_traffics(session: SessionDep, service_name: str):
+async def get_traffics(
+    session: SessionDep,
+    service_name: str,
+    begin_time: Optional[str] = None,
+    end_time: Optional[str] = None,
+):
+    begin_time = parse_datetime(begin_time)
+    end_time = parse_datetime(end_time)
+    logger.info(
+        f"get_traffics service={service_name} begin_time={begin_time} end_time={end_time}"
+    )
     return {
         "traffics": [
             Traffic.model_validate(traffic)
-            for traffic in query_traffics(session, service_name)
+            for traffic in query_traffics(session, service_name, begin_time, end_time)
         ]
     }
 

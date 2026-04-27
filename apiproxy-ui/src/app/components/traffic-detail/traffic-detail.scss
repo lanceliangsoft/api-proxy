@@ -1,10 +1,15 @@
 
 .req-body {
   width: 99%;
-  height: 150px;
+  height: 300px;
 }
 
 .resp-body {
   width: 99%;
   height: 450px;
+}
+
+.scroll-container {
+  height: 350px;
+  overflow-y: auto;
 }

@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
 import { MatListModule, MatListOption } from '@angular/material/list';
 import { ConsoleService } from '../../services/service';
 import { ServiceItem, ServicesInfo, Traffic } from '../../services/model';
@@ -11,6 +11,11 @@ import { hostOfUrl, urlMatches } from '../../utils/restUtil';
 import { MatIconModule } from '@angular/material/icon';
 import { ServiceDetail } from '../service-detail/service-detail';
 import { UnmappedGroup } from '../unmapped-group/unmapped-group';
+import { MatFormField, MatInputModule } from "@angular/material/input";
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatTimepickerModule } from '@angular/material/timepicker';
+import { FormsModule } from '@angular/forms';
 
 
 export type DetailViewName = 'traffic' | 'service' | 'unmapped-group';
@@ -18,7 +23,8 @@ export type DetailViewName = 'traffic' | 'service' | 'unmapped-group';
 @Component({
   selector: 'app-dashboard',
   imports: [MatListModule, MatButtonModule, MatTreeModule, MatIconModule, MatSlideToggleModule,
-    TrafficDetail, ServiceDetail, UnmappedGroup],
+    FormsModule, MatFormFieldModule, MatInputModule, MatDatepickerModule, MatTimepickerModule,
+    TrafficDetail, ServiceDetail, UnmappedGroup, MatFormField],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
@@ -31,8 +37,17 @@ export class Dashboard implements OnInit {
   selectedGroup = signal<GroupedValues<Traffic> | undefined>(undefined);
   newServiceHost = signal<string>('');
   detailView = signal<DetailViewName>('traffic');
+  showAll = signal<boolean>(true);
+  beginTime = signal<Date | undefined>(undefined);
+  endTime = signal<Date | undefined>(undefined);
   trafficGroups = //signal<TrafficGroup[]>([{ title: 'any', traffics: [] }]);
     computed(() => groupBy<Traffic>(this.traffics(), (traffic) => hostOfUrl(traffic.url)));
+
+  constructor() {
+    effect(() => {
+
+    });
+  }
 
   childrenAccessor = (node: GroupedValues<Traffic> | Traffic) => {
     if ('values' in node) {
@@ -60,8 +75,7 @@ export class Dashboard implements OnInit {
     this.selectedService.set(service);
     this.detailView.set('service');
 
-    const trafficsInfo = await this._consoleService.retrieveTraffics(serviceName);
-    this.traffics.set(trafficsInfo.traffics);
+    await this.refreshTraffics();
   }
 
   async onTrafficSelected(traffic: GroupedValues<Traffic> | Traffic) {
@@ -100,17 +114,27 @@ export class Dashboard implements OnInit {
     );
   }
 
+  private async refreshTraffics() {
+    const trafficsInfo = await this._consoleService.retrieveTraffics(
+      this.selectedService()?.name || 'http-proxy',
+      this.beginTime(), this.endTime()
+    );
+    this.traffics.set(trafficsInfo.traffics);
+  }
+
   async refresh(): Promise<void> {
     const servicesInfo = await this._consoleService.getServices();
     this.services.set(servicesInfo.services);
 
-    const trafficsInfo = await this._consoleService.retrieveTraffics(this.selectedService()?.name || 'http-proxy');
-    this.traffics.set(trafficsInfo.traffics);
+    await this.refreshTraffics();
+  }
+
+  getTrafficTime(traffic: Traffic): string {
+    return formatTimestamp(traffic.timestamp);
   }
 
   getTrafficLabel(traffic: Traffic): string {
-    const time = formatTimestamp(traffic.timestamp);
-    return `${time} ${traffic.method} ${traffic.url}`;
+    return `${traffic.method} ${traffic.url}`;
   }
 
   onAddService() {

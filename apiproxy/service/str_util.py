@@ -1,5 +1,6 @@
 import re
-from typing import List, Tuple
+from datetime import datetime
+from typing import Tuple
 
 
 def trim_indent(text: str) -> str:
@@ -38,3 +39,9 @@ def get_url_path(url: str) -> str:
         return m.group(1)
     else:
         return url
+
+
+def parse_datetime(iso_date: str | None) -> datetime | None:
+    if iso_date is None:
+        return None
+    return datetime.fromisoformat(iso_date)

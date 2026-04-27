@@ -35,19 +35,27 @@ export interface TrafficsResponse {
 }
 
 export type GeneratorFormat =
-  'CURL' | 'CURL_WINDOWS' | 'SPRING_BOOT_SERVER_MVC' | 'SPRINT_BOOT_SERVER_FLUX'|
-  'SPRINT_BOOT_CLIENT_TEMPLATE' | 'OPENAPI_JAVA';
+  'CURL' | 'CURL_WINDOWS' | 'SPRING_BOOT_WEB_MVC' | 'SPRING_BOOT_WEB_FLUX'|
+  'ASP_NET_API' | 'GO_FIBER_API' | 'RUST_ACTIX_API' |
+  'JAVA_JDK_HTTP_CLIENT' | 'JAVA_APACHE_HTTP_CLIENT' | 'JAVA_CLIENT_REST_TEMPLATE' | 'JAVA_CLIENT_WEB_FLUX';
+
+
+export const GENERATOR_FORMATS :GeneratorFormat[] = [
+  'CURL', 'CURL_WINDOWS', 'SPRING_BOOT_WEB_MVC', 'SPRING_BOOT_WEB_FLUX',
+  'ASP_NET_API', 'GO_FIBER_API', 'RUST_ACTIX_API',
+  'JAVA_JDK_HTTP_CLIENT', 'JAVA_APACHE_HTTP_CLIENT', 'JAVA_CLIENT_REST_TEMPLATE', 'JAVA_CLIENT_WEB_FLUX'
+]
 
 export interface GenerateRequest {
   trafficId: number,
   format: GeneratorFormat,
 }
 
-
 export interface GeneratedFile {
   file_name: string,
   content: string
 }
+
 export interface GenerateResponse {
   files: GeneratedFile[]
 }

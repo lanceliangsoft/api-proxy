@@ -6,7 +6,7 @@ from ..service.models import Traffic
 from ..service.str_util import trim_indent, split_path
 
 
-async def generate_spring_boot_server_web_mvc(traffic: Traffic) -> List[GeneratedFile]:
+async def generate_spring_boot_web_mvc(traffic: Traffic) -> List[GeneratedFile]:
     entity_name = guess_entity_name(traffic.method, traffic.url)
     operation = camel_case(entity_name)
 
@@ -90,7 +90,7 @@ async def generate_spring_boot_server_web_mvc(traffic: Traffic) -> List[Generate
     return files
 
 
-async def generate_spring_boot_server_web_flux(traffic: Traffic) -> List[GeneratedFile]:
+async def generate_spring_boot_web_flux(traffic: Traffic) -> List[GeneratedFile]:
     entity_name = guess_entity_name(traffic.method, traffic.url)
     operation = camel_case(entity_name)
 

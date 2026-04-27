@@ -48,13 +48,21 @@ export class ConsoleService {
   }
 
   async deleteService(serviceName: string): Promise<void> {
-    await fetch(`${this.baseUrl}/api/services/${serviceName}`, {
+    await fetch(`${this.baseUrl}/api/services/${encodeURI(serviceName)}`, {
       method: 'DELETE'
     });
   }
 
-  async retrieveTraffics(serviceName: string): Promise<TrafficsResponse> {
-    const response = await fetch(`${this.baseUrl}/api/traffics/${serviceName}`);
+  async retrieveTraffics(serviceName: string, beginTime: Date | undefined, endTime: Date | undefined): Promise<TrafficsResponse> {
+    let url = `${this.baseUrl}/api/traffics/${encodeURI(serviceName)}`;
+    if (beginTime) {
+      url = url + (url.indexOf('?') >= 0 ? '&' : '?') + `begin_time=${encodeURI(beginTime.toISOString())}`
+    }
+    if (endTime) {
+      url = url + (url.indexOf('?') >= 0 ? '&' : '?') + `end_time=${encodeURI(endTime.toISOString())}`
+    }
+    console.log(url);
+    const response = await fetch(url);
     const data = await response.json();
     return data;
   }

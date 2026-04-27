@@ -17,7 +17,6 @@ export function groupBy<T>(list: T[], keyGetter: (item: T) => string): GroupedVa
   return Object.entries(map).map(([title, values]) => ({ title, values }));
 }
 
-
 export function formatTimestamp(timestamp: string | undefined): string {
   if (!timestamp) {
     return '';
@@ -37,4 +36,10 @@ export function formatTimestamp(timestamp: string | undefined): string {
 
 export function simplifyName(host: string): string {
   return host.replace(/^www\./, '').replace(/(\.com)(:\d+)$/, '');
+}
+
+export function isJson(str: string | null | undefined): boolean {
+  return str !== null && str !== undefined
+    && (str.startsWith('{') && str.endsWith('}')
+      || (str.startsWith('[') && str.endsWith(']')));
 }

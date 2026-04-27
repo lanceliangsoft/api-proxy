@@ -25,6 +25,7 @@
 <mat-tab-group>
   <mat-tab label="Request">
     <div>Headers:</div>
+    <div class="scroll-container">
     <table mat-table [dataSource]="reqHeaders()" class="mat-elevation-z8">
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef>Name</th>
@@ -37,17 +38,17 @@
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row;columns: displayedColumns;"></tr>
     </table>
-    @if (!reqHeadersAll()) {
-      <div><button mat-button (click)="reqHeadersAll.set(true)">More</button></div>
-    }@else{
-      <div><button mat-button (click)="reqHeadersAll.set(false)">Less</button></div>
-    }
+    </div>
 
-    <div>Body:</div>
-    <textarea class="req-body">{{traffic()?.req_body}}</textarea>
+    <div>
+      Body:
+      <mat-slide-toggle [(ngModel)]="formatReq">Format</mat-slide-toggle>
+    </div>
+    <textarea class="req-body">{{traffic()?.req_body | formatJson:formatReq()}}</textarea>
   </mat-tab>
   <mat-tab label="Response">
     <div>Headers:</div>
+    <div class="scroll-container">
     <table mat-table [dataSource]="respHeaders()" class="mat-elevation-z8">
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef>Name</th>
@@ -60,13 +61,12 @@
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row;columns: displayedColumns;"></tr>
     </table>
-    @if (!respHeadersAll()) {
-      <div><button mat-button (click)="respHeadersAll.set(true)">More</button></div>
-    }@else{
-      <div><button mat-button (click)="respHeadersAll.set(false)">Less</button></div>
-    }
-    <div>Body:</div>
-    <textarea class="resp-body">{{traffic()?.resp_body}}</textarea>
+    </div>
+    <div>
+      Body:
+      <mat-slide-toggle [(ngModel)]="formatResp">Format</mat-slide-toggle>
+    </div>
+    <textarea class="resp-body">{{traffic()?.resp_body | formatJson:formatResp()}}</textarea>
   </mat-tab>
   <mat-tab label="Generate">
     <app-generator [traffic]="traffic()"></app-generator>

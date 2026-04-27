@@ -1,3 +1,5 @@
+@use '@angular/material' as mat;
+
 main {
   width: 100%;
   box-sizing: inherit;
@@ -31,6 +33,37 @@ main {
 
 .selected {
   background-color: #c8b3b3;
+}
+
+.search-opt-line {
+  display: flex;
+  flex-direction: row;
+}
+
+.scroll-container {
+  height: 500px;
+  overflow-y: auto;
+}
+
+.treeitem {
+  overflow: hidden;
+}
+
+.treeitem-content {
+  display: inline-block;
+  font-size: 12px;
+}
+
+.traffic-time {
+  color: blue;
+}
+
+// Customize the entire app. Change :root to your selector if you want to scope the styles.
+:root {
+  @include mat.tree-overrides((
+    node-min-height: 20px,
+    node-text-font: --mat-sys-body-small-size
+  ));
 }
 
 @media screen and (max-width: 650px) {

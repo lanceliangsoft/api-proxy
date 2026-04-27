@@ -17,23 +17,77 @@
         </mat-list>
       </div>
       <div class="section">
-        <h2>Traffics:</h2>
-        <mat-tree #tree [dataSource]="trafficGroups()" [childrenAccessor]="childrenAccessor">
-          <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
-            <span (click)="onTrafficSelected(node)"
-              [class]="node.id === selectedTraffic()?.id ? 'selected' : ''">
-                {{node.title || getTrafficLabel(node)}}
-            </span>
-          </mat-tree-node>
-          <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
-            <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'toggle ' + node.title">
-              <mat-icon class="mat-icon-rtl-mirror">
-                {{tree.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
-              </mat-icon>
-            </button>
-            <span (click)="onTrafficSelected(node)">{{node.title}}</span>
-          </mat-tree-node>
-        </mat-tree>
+        <h2>
+          Traffics:
+          <mat-slide-toggle [(ngModel)]="showAll">Show all</mat-slide-toggle>
+        </h2>
+        @if (!showAll()) {
+        <table>
+          <tr>
+            <td>
+              <div>Begin:</div>
+            </td>
+            <td>
+              <mat-form-field>
+                <mat-label>Choose a date</mat-label>
+                <input matInput [matDatepicker]="picker" [(ngModel)]="beginTime" />
+                <mat-datepicker-toggle matIconSuffix [for]="picker" />
+                <mat-datepicker #picker />
+              </mat-form-field>
+            </td>
+            <td>
+              <mat-form-field>
+                <mat-label>Choose a time</mat-label>
+                <input matInput [matTimepicker]="timepicker" [(ngModel)]="beginTime"/>
+                <mat-timepicker-toggle [for]="timepicker" matSuffix />
+                <mat-timepicker #timepicker />
+              </mat-form-field>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div>End:</div>
+            </td>
+            <td>
+              <mat-form-field>
+                <mat-label>Choose a date</mat-label>
+                <input matInput [matDatepicker]="picker2" [(ngModel)]="endTime" />
+                <mat-datepicker-toggle matIconSuffix [for]="picker2" />
+                <mat-datepicker #picker2 />
+              </mat-form-field>
+            </td>
+            <td>
+              <mat-form-field>
+                <mat-label>Choose a time</mat-label>
+                <input matInput [matTimepicker]="timepicker2" [(ngModel)]="endTime"/>
+                <mat-timepicker-toggle [for]="timepicker2" matSuffix />
+                <mat-timepicker #timepicker2 />
+              </mat-form-field>
+            </td>
+          </tr>
+        </table>
+        }
+        <div class="scroll-container">
+          <mat-tree #tree [dataSource]="trafficGroups()" [childrenAccessor]="childrenAccessor">
+            <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
+              <div (click)="onTrafficSelected(node)"
+                [class]="node.id === selectedTraffic()?.id ? 'selected treeitem' : 'treeitem'">
+                <div class="treeitem-content">
+                  <span class="traffic-time">{{getTrafficTime(node)}}</span>
+                  {{node.title || getTrafficLabel(node)}}
+                </div>
+              </div>
+            </mat-tree-node>
+            <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
+              <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'toggle ' + node.title">
+                <mat-icon class="mat-icon-rtl-mirror">
+                  {{tree.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+                </mat-icon>
+              </button>
+              <span (click)="onTrafficSelected(node)">{{node.title}}</span>
+            </mat-tree-node>
+          </mat-tree>
+        </div>
         <button mat-button="filled" (click)="refresh()">Refresh</button>
       </div>
     </div>
@@ -42,11 +96,9 @@
       <app-traffic-detail [traffic]="selectedTraffic()"></app-traffic-detail>
       } @else if(detailView() === 'service') {
       <app-service-detail [service]="selectedService()" [newServiceHost]="newServiceHost()"
-        (serviceAdded)="onServiceAdded($event)"
-        (serviceDeleted)="onServiceDeleted($event)"/>
+        (serviceAdded)="onServiceAdded($event)" (serviceDeleted)="onServiceDeleted($event)" />
       } @else if(detailView() === 'unmapped-group') {
-        <app-unmapped-group [group]="selectedGroup()"
-          (addService)="onAddService()"></app-unmapped-group>
+      <app-unmapped-group [group]="selectedGroup()" (addService)="onAddService()"></app-unmapped-group>
       }
     </div>
   </div>

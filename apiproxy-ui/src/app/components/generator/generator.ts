@@ -1,5 +1,5 @@
 import { Component, inject, input, signal } from '@angular/core';
-import { GeneratorFormat, Traffic } from '../../services/model';
+import { GENERATOR_FORMATS, GeneratorFormat, Traffic } from '../../services/model';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -20,8 +20,7 @@ interface GeneratingOptions {
 })
 export class Generator {
   private _consoleService = inject(ConsoleService);
-  formats = ['CURL', 'CURL_WINDOWS', 'SPRING_BOOT_SERVER_WEB_MVC', 'SPRINT_BOOT_SERVER_WEB_FLUX',
-    'SPRINT_BOOT_CLIENT_TEMPLATE', 'OPENAPI_JAVA'];
+  formats = GENERATOR_FORMATS;
   traffic = input<Traffic | undefined>();
   format = signal<GeneratorFormat>('CURL');
 
