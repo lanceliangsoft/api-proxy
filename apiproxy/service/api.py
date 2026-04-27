@@ -8,6 +8,7 @@ from fastapi.staticfiles import StaticFiles
 import logging
 from .crud import (
     SessionDep,
+    delete_traffic_by_id,
     query_traffics,
     update_service,
 )
@@ -79,7 +80,7 @@ async def get_traffics(
     service_name: str,
     begin_time: Optional[str] = None,
     end_time: Optional[str] = None,
-):
+) -> dict:
     begin_time = parse_datetime(begin_time)
     end_time = parse_datetime(end_time)
     logger.info(
@@ -90,6 +91,15 @@ async def get_traffics(
             Traffic.model_validate(traffic)
             for traffic in query_traffics(session, service_name, begin_time, end_time)
         ]
+    }
+
+
+@app.delete("/api/traffics/{id}")
+async def remove_traffic(session: SessionDep, id: int) -> dict:
+    deleted = delete_traffic_by_id(session, id)
+    print(("deleted" if deleted else "not deleted") + f" traffic {id}")
+    return {
+        "deleted": deleted
     }
 
 

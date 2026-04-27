@@ -50,9 +50,10 @@ class Modeler:
         self._classes: Dict[str, ClassDef] = {}
         self._root: ValueType = "*"
 
-    def analyze(self, payload: bytes, class_name: str):
+    def analyze(self, payload: bytes, class_name: str) -> ValueType:
         obj = json.loads(payload.decode())
         self._root = self.analyze_value(obj, class_name)
+        return self._root
 
     def analyze_value(self, value: Any, name: str) -> ValueType:
         if value is None:

@@ -8,7 +8,7 @@ from .spring_boot import (
     generate_spring_boot_web_mvc,
     generate_spring_boot_web_flux,
 )
-from .dotnet import generate_asp_net_api
+from .dotnet import generate_asp_net_api, generate_dot_net_client
 from .golang import generate_go_fiber_api
 from .rust import generate_rust_actix_api
 
@@ -20,6 +20,7 @@ generators: Dict[str, Callable] = {
     "ASP_NET_API": generate_asp_net_api,
     "GO_FIBER_API": generate_go_fiber_api,
     "RUST_ACTIX_API": generate_rust_actix_api,
+    "DOT_NET_CLIENT": generate_dot_net_client,
     # TODO: add more generators here
 }
 

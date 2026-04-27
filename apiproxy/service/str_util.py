@@ -16,6 +16,11 @@ def trim_indent(text: str) -> str:
         return text
 
 
+def indent(indent, text: str) -> str:
+    lines = text.splitlines()
+    return ("\n" + " " * indent).join(lines)
+
+
 def get_leading_spaces(line: str) -> str:
     if m := re.search(r"^\s+", line):
         return m.group(0)
@@ -32,6 +37,13 @@ def split_path(url: str) -> Tuple[str, str]:
         return "", url
 
 
+def split_url(url: str) -> Tuple[str, str]:
+    if m := re.search(r"^(http[s]?://(?:[^/]+))(.*)$", url):
+        return m.group(1), m.group(2) or "/"
+    else:
+        return url, ""
+
+
 def get_url_path(url: str) -> str:
     if m := re.search(r"^http[s]?://([^/]+)([^\&]*)(&.*)?$", url):
         return m.group(2)
@@ -45,3 +57,16 @@ def parse_datetime(iso_date: str | None) -> datetime | None:
     if iso_date is None:
         return None
     return datetime.fromisoformat(iso_date)
+
+
+def quote_string(s: str | None) -> str:
+    if s is None:
+        return "null"
+    return (
+        '"'
+        + s.replace('"', '\\"')
+        .replace("\t", "\\t")
+        .replace("\r", "\\r")
+        .replace("\n", "\\n")
+        + '"'
+    )

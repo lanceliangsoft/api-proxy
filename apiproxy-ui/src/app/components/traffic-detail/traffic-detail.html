@@ -2,7 +2,14 @@
 <table class="detail-form">
   <tr>
     <td>Time:</td>
-    <td>{{traffic()?.timestamp}}</td>
+    <td>
+      <div class="stretched-vbox">
+        <div>{{traffic()?.timestamp}}</div>
+        <div>
+          <button mat-button (click)="deleteTraffic(traffic()?.id)">Delete</button>
+        </div>
+      </div>
+    </td>
   </tr>
   <tr>
     <td>Service Name:</td>

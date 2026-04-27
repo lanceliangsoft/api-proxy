@@ -98,6 +98,10 @@ export class Dashboard implements OnInit {
     }
   }
 
+  async onTrafficDeleted(traffic_id: number) {
+    this.traffics.update(ts => ts.filter(t => t.id !== traffic_id));
+  }
+
   async onToggleService(serviceName: string, previouslyChecked: boolean) {
     const active = !previouslyChecked;
     console.log(`onToggleService ${serviceName} active: ${active}`)

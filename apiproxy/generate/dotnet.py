@@ -1,9 +1,11 @@
-from typing import List
+import json
+from re import I
+from typing import Any, List
 
 from .naming import camel_case, guess_entity_name
 from .modeler import ClassDef, ListDef, Modeler, ValueType, pascal_case
 from ..service.models import GeneratedFile, Traffic
-from ..service.str_util import split_path, trim_indent
+from ..service.str_util import indent, quote_string, split_path, split_url, trim_indent
 
 
 def get_cs_type(type: ValueType) -> str:
@@ -28,7 +30,7 @@ def get_cs_type(type: ValueType) -> str:
 
 def generate_cs_model(class_def: ClassDef) -> GeneratedFile:
     content = trim_indent(f"""
-        namespace Example.Models;
+        namespace Models;
                           
         public class {class_def.name}
         """)
@@ -41,27 +43,86 @@ def generate_cs_model(class_def: ClassDef) -> GeneratedFile:
     return GeneratedFile(file_name=f"Models/{class_def.name}.cs", content=content)
 
 
+def generate_cs_value(value: Any, type: ValueType, indent: int) -> str:
+    if isinstance(type, ClassDef):
+        return generate_cs_data_init(type, value, indent)  # type: ignore
+    elif isinstance(type, ListDef):
+        first = True
+        desc = "["
+        for item in value:
+            if first:
+                first = False
+            else:
+                desc += ","
+            desc += (
+                "\n"
+                + (" " * (indent + 4))
+                + generate_cs_value(item, type.elem_type, indent + 4)
+            )
+        desc += "\n" + (" " * indent) + "]"
+        return desc
+    elif type == "String":
+        return quote_string(value)
+    elif type == "int":
+        return str(value)
+    elif type == "double":
+        return str(value)
+    elif type == "None":
+        return "null"
+    else:
+        return str(value)
+
+
+def generate_cs_data_init(class_def: ClassDef, data: dict, indent: int) -> str:
+    type_name = get_cs_type(class_def)
+
+    desc = f"new {type_name}\n" + (" " * indent) + "{"
+    first = True
+    for field in class_def.fields:
+        if first:
+            first = False
+        else:
+            desc += ","
+        desc += (
+            "\n"
+            + (" " * (indent + 4))
+            + f"{pascal_case(field.name)}="
+            + generate_cs_value(data.get(field.name), field.type, indent + 4)
+        )
+
+    desc += "\n" + (" " * indent) + "}"
+    return desc
+
+
 async def generate_asp_net_api(traffic: Traffic) -> List[GeneratedFile]:
-    op_name = guess_entity_name(traffic.method, traffic.url)
+    op_name = pascal_case(guess_entity_name(traffic.method, traffic.url))
     service_name = "ExampleService"
 
     files: List[GeneratedFile] = []
     modeler = Modeler()
 
     if traffic.req_body:
-        request_class = pascal_case(op_name) + "Request"
-        parameters = f"{request_class} request"
+        request_class = modeler.analyze(
+            traffic.req_body, pascal_case(op_name) + "Request"
+        )
+        request_class_name = get_cs_type(request_class)
+        parameters = f"{request_class_name} request"
         parameter_vars = "request"
-        modeler.analyze(traffic.req_body, request_class)
 
     else:
         request_class = None
+        request_class_name = None
         parameters = ""
         parameter_vars = ""
 
     if traffic.resp_body:
-        response_class = "Response"
-        modeler.analyze(traffic.resp_body, response_class)
+        response_class = modeler.analyze(
+            traffic.resp_body, pascal_case(op_name) + "Response"
+        )
+        response_class_name = get_cs_type(response_class)
+    else:
+        response_class = None
+        response_class_name = "Object"
 
     for class_def in modeler.get_classes():
         files.append(generate_cs_model(class_def))
@@ -84,15 +145,34 @@ async def generate_asp_net_api(traffic: Traffic) -> List[GeneratedFile]:
         return files
 
     if traffic.resp_body:
-        response_class = pascal_case(op_name) + "Response"
+        init_data = json.loads(traffic.resp_body.decode())
+
+        service_impl = trim_indent(f"""
+            using Models;
+                                
+            namespace Services;
+                                
+            public class {service_name}
+            {{
+                public async {response_class_name} {op_name}({parameters})
+                {{
+                    return {indent(20, generate_cs_data_init(response_class, init_data))}
+                }}
+            }}
+            """)
+
+        files.append(
+            GeneratedFile(file_name="Services/Controller.cs", content=service_impl)
+        )
     else:
-        response_class = "String"
+        response_class_name = "Object"
 
     controller = trim_indent(f"""
         using Microsoft.AspNetCore.Mvc;
-        using Example.Models;
+        using Models;
+        using Services;
         
-        namespace Example.Controllers;
+        namespace Controllers;
                              
         [ApiController]
         [Route("[controller]")]
@@ -106,7 +186,7 @@ async def generate_asp_net_api(traffic: Traffic) -> List[GeneratedFile]:
             }}
 
             {method_annotation}
-            public async {response_class} {op_name}({parameters})
+            public async {response_class_name} {op_name}({parameters})
             {{
                 var response = await {service_name}.{op_name}({parameter_vars});
 
@@ -119,4 +199,91 @@ async def generate_asp_net_api(traffic: Traffic) -> List[GeneratedFile]:
         GeneratedFile(file_name="Controllers/Controller.cs", content=controller)
     )
 
+    return files
+
+
+async def generate_dot_net_client(traffic: Traffic) -> List[GeneratedFile]:
+    op_name = pascal_case(guess_entity_name(traffic.method, traffic.url))
+
+    files: List[GeneratedFile] = []
+    modeler = Modeler()
+
+    if traffic.req_body:
+        request_class = modeler.analyze(
+            traffic.req_body, pascal_case(op_name) + "Request"
+        )
+        request_class_name = get_cs_type(request_class)
+        parameters = f"{request_class_name} request"
+    else:
+        request_class = None
+        request_class_name = None
+        parameters = ""
+
+    if traffic.resp_body:
+        response_class = modeler.analyze(
+            traffic.resp_body, pascal_case(op_name) + "Response"
+        )
+        response_class_name = get_cs_type(response_class)
+    else:
+        response_class = None
+        response_class_name = "Object"
+
+    for class_def in modeler.get_classes():
+        files.append(generate_cs_model(class_def))
+
+    if traffic.req_body is not None and request_class is not None:
+        req_obj = json.loads(traffic.req_body.decode())
+
+        example_call = trim_indent(
+            f"""public async Task<{response_class_name}?> {op_name}Example()
+            {{
+                var request = {generate_cs_value(req_obj, request_class, 16)};
+                return await {op_name}(request);
+            }}"""
+        )
+    else:
+        example_call = ""
+
+    controller = trim_indent(f"""
+        using System.Reflection;
+        using System.Text;
+        using System.Text.Json;
+        using System.Text.Json.Serialization;
+        using Models;
+        
+        namespace Clients;
+                             
+        public class ExampleClient
+        {{
+            private ILogger _logger;
+                             
+            public ExampleClient(ILoggerFactory logFactory)
+            {{
+                this._logger = logFactory.CreateLogger(Assembly.GetExecutingAssembly().GetName().Name);         
+            }}
+
+            public async Task<{response_class_name}?> {op_name}({parameters})
+            {{
+                try
+                {{
+                    HttpClient client = new HttpClient();
+    
+                    var response = await client.PostAsJsonAsync("{traffic.url}", request);
+                    string responseContent = await response.Content.ReadAsStringAsync();
+                    return JsonSerializer.Deserialize<{response_class_name}>(responseContent);
+                }}
+                catch (Exception e)
+                {{
+                    _logger.LogError("Fail to call REST api {{}}", e);
+                    return null;
+                }}
+            }}
+
+            {indent(12, example_call)}
+        }}
+        """)
+
+    files.append(
+        GeneratedFile(file_name="Controllers/Controller.cs", content=controller)
+    )
     return files

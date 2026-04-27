@@ -93,7 +93,8 @@
     </div>
     <div class="right-side">
       @if (detailView() === 'traffic') {
-      <app-traffic-detail [traffic]="selectedTraffic()"></app-traffic-detail>
+      <app-traffic-detail [traffic]="selectedTraffic()"
+        (trafficDeleted)="onTrafficDeleted($event)"/>
       } @else if(detailView() === 'service') {
       <app-service-detail [service]="selectedService()" [newServiceHost]="newServiceHost()"
         (serviceAdded)="onServiceAdded($event)" (serviceDeleted)="onServiceDeleted($event)" />

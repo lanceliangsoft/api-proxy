@@ -1,4 +1,4 @@
-import { Component, computed, input, signal } from '@angular/core';
+import { Component, computed, EventEmitter, inject, input, Output, signal } from '@angular/core';
 import { Traffic } from '../../services/model';
 import { MatTableModule } from '@angular/material/table';
 import { CommonModule } from '@angular/common';
@@ -7,6 +7,8 @@ import { Generator } from "../generator/generator";
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FormsModule } from '@angular/forms';
 import { FormatJsonPipe } from '../../derivatives/format-json-pipe';
+import { ConsoleService } from '../../services/service';
+import { MatButtonModule } from '@angular/material/button';
 
 const MAX_HEADERS = 6;
 
@@ -14,7 +16,7 @@ const MAX_HEADERS = 6;
   selector: 'app-traffic-detail',
   imports: [
     CommonModule, MatTableModule, MatTabsModule, MatSlideToggleModule, Generator,
-    FormsModule, MatSlideToggleModule,
+    FormsModule, MatSlideToggleModule, MatButtonModule,
     FormatJsonPipe
 ],
   templateUrl: './traffic-detail.html',
@@ -22,6 +24,8 @@ const MAX_HEADERS = 6;
   providers: [FormatJsonPipe]
 })
 export class TrafficDetail {
+  private _consoleService = inject(ConsoleService);
+  @Output() trafficDeleted = new EventEmitter<number>();
 
   displayedColumns: string[] = ['name', 'value'];
   traffic = input<Traffic|undefined>(undefined);
@@ -36,4 +40,15 @@ export class TrafficDetail {
     );
   formatReq = signal<boolean>(false);
   formatResp = signal<boolean>(false);
+
+  async deleteTraffic(id: number | undefined): Promise<void> {
+    if (id && confirm(`Do you want to delete traffic ${id} - ${this.traffic()?.method} ${this.traffic()?.url}?`)) {
+      const deleted = await this._consoleService.deleteTraffic(id);
+      if (deleted) {
+        this.trafficDeleted.emit(id);
+      } else {
+        alert(`failed to delete traffic ${id}`);
+      }
+    }
+  }
 }

@@ -94,3 +94,13 @@ def query_traffics(
         query = query.limit(limit)
 
     return session.exec(query).all()
+
+
+def delete_traffic_by_id(session: Session, id: int) -> bool:
+    traffic = session.get(TrafficEntity, id)
+    if traffic is not None:
+        session.delete(traffic)
+        session.commit()
+        return True
+    else:
+        return False

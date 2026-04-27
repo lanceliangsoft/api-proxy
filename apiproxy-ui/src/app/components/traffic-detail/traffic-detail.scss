@@ -13,3 +13,11 @@
   height: 350px;
   overflow-y: auto;
 }
+
+.stretched-vbox {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  min-width: 100%;
+
+}

@@ -67,6 +67,14 @@ export class ConsoleService {
     return data;
   }
 
+  async deleteTraffic(id: number): Promise<boolean> {
+      const response = await fetch(`${this.baseUrl}/api/traffics/${id}`, {
+        method: 'DELETE'
+      });
+      const ret = await response.json();
+      return ret?.deleted ?? false;
+  }
+
   async getNextAvailablePort(startPort: number): Promise<number> {
     const response = await fetch(`${this.baseUrl}/api/next-port?start=${startPort}`);
     const data = await response.json();
