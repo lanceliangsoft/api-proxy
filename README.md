@@ -1,6 +1,7 @@
 # api-proxy
 A simple tool to trace, simulate and analyze REST API calls.
 ## The features and design
+* a handy JSON pad generating C#, Java and TypeScript model codes from json.
 * python backend including a console-api in fastapi.
 * a simple http proxy which can catch and simulate REST API calls.
 * a management console UI in Angular 21.
@@ -54,12 +55,18 @@ INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
 Access the management console via http://localhost:8000
 
 ## Generate models from json
-Click the "JSON" link banner, show the JSON Pad
+Click the "JSON" link in banner, switch to the JSON Pad.
 
 Edit or copy / paste a json text in the left side text area, click the "Generate" button, then model sources are generated in the right side.
+### C# models
 ![C# models](docs/images/json-generate-cs.png "C#")
 
+### Java models
 ![Java models](docs/images/json-generate-java.png "Java")
 
+### Typescript models
 ![Typescript models](docs/images/json-generate-ts.png "Typescript")
+
+## Contacts
+Author: Lance Liang (lanceliang2019@gmail.com)
 
