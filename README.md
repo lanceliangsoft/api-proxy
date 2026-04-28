@@ -52,3 +52,14 @@ INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
 ```
 
 Access the management console via http://localhost:8000
+
+## Generate models from json
+Click the "JSON" link banner, show the JSON Pad
+
+Edit or copy / paste a json text in the left side text area, click the "Generate" button, then model sources are generated in the right side.
+![C# models](docs/images/json-generate-cs.png "C#")
+
+![Java models](docs/images/json-generate-java.png "Java")
+
+![Typescript models](docs/images/json-generate-ts.png "Typescript")
+

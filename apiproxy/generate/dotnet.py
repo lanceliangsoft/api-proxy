@@ -94,6 +94,18 @@ def generate_cs_data_init(class_def: ClassDef, data: dict, indent: int) -> str:
     return desc
 
 
+async def generate_cs_models(json_payload: str, root_element: str) -> List[GeneratedFile]:
+    files: List[GeneratedFile] = []
+    modeler = Modeler()
+
+    modeler.analyze(
+        json_payload.encode(), root_element
+    )
+    for class_def in modeler.get_classes():
+        files.append(generate_cs_model(class_def))
+    return files
+
+
 async def generate_asp_net_api(traffic: Traffic) -> List[GeneratedFile]:
     op_name = pascal_case(guess_entity_name(traffic.method, traffic.url))
     service_name = "ExampleService"
@@ -244,7 +256,7 @@ async def generate_dot_net_client(traffic: Traffic) -> List[GeneratedFile]:
     else:
         example_call = ""
 
-    controller = trim_indent(f"""
+    client_code = trim_indent(f"""
         using System.Reflection;
         using System.Text;
         using System.Text.Json;
@@ -284,6 +296,6 @@ async def generate_dot_net_client(traffic: Traffic) -> List[GeneratedFile]:
         """)
 
     files.append(
-        GeneratedFile(file_name="Controllers/Controller.cs", content=controller)
+        GeneratedFile(file_name="Clients/ExampleClient.cs", content=client_code)
     )
     return files

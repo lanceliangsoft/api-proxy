@@ -42,8 +42,14 @@ class SwitchServiceRequest(SQLModel):
 
 
 class GenerateRequest(SQLModel):
-    trafficId: int
+    traffic_id: int
     format: str
+
+
+class GenerateModelRequest(SQLModel):
+    json_payload: str
+    format: str
+    root_element: str
 
 
 class GeneratedFile(SQLModel):

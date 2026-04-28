@@ -1,0 +1,63 @@
+main {
+  width: 100%;
+  box-sizing: inherit;
+  position: relative;
+  padding: 0;
+  margin: 0;
+}
+
+.content {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+}
+
+.left-side {
+  width: 40%;
+  min-height: 500px;
+  background-color: bisque;
+  padding: 10px;
+}
+
+.left-side textarea {
+  width: 99%;
+  height: 600px;
+}
+
+
+.section {
+  padding: 1rem;
+  border-radius: 4px;
+}
+
+.right-side {
+  width: 60%;
+  flex: 1;
+  background-color: rgb(172, 249, 172);
+  padding: 10px;
+}
+
+.right-side textarea {
+  width: 99%;
+  height: 600px;
+  margin-top: 10px;
+}
+
+.selected {
+  background-color: #c8b3b3;
+}
+
+.title {
+  font-size: large;
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-weight: 800;
+}
+
+.vbox {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  padding: 5px;
+}

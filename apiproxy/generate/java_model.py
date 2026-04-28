@@ -1,7 +1,8 @@
+from typing import List
 from ..service.models import GeneratedFile
 from ..service.str_util import trim_indent
 from .naming import camel_case, pascal_case
-from .modeler import ListDef, ClassDef, ValueType
+from .modeler import ListDef, ClassDef, Modeler, ValueType
 
 
 def generate_java_model(class_def: ClassDef) -> GeneratedFile:
@@ -10,6 +11,18 @@ def generate_java_model(class_def: ClassDef) -> GeneratedFile:
         file_name=f"src/main/java/com/example/generated/model/{class_def.name}.java",
         content=generate_java_class(class_def),
     )
+
+
+async def generate_java_models(json_payload: str, root_element: str) -> List[GeneratedFile]:
+    files: List[GeneratedFile] = []
+    modeler = Modeler()
+
+    modeler.analyze(
+        json_payload.encode(), root_element
+    )
+    for class_def in modeler.get_classes():
+        files.append(generate_java_model(class_def))
+    return files
 
 
 def generate_java_class(class_def: ClassDef) -> str:

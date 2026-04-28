@@ -1,5 +1,5 @@
 import { Injectable, signal } from "@angular/core";
-import { GenerateRequest, GenerateResponse, GeneratorFormat, ServiceItem, ServicesInfo, TrafficsResponse } from "./model";
+import { GenerateModelRequest, GenerateRequest, GenerateResponse, GeneratorFormat, ModelFormat, ServiceItem, ServicesInfo, TrafficsResponse } from "./model";
 
 @Injectable({
   providedIn: 'root'
@@ -83,13 +83,30 @@ export class ConsoleService {
 
   async generate(trafficId: number, format: GeneratorFormat): Promise<GenerateResponse> {
     console.log(`generate ${trafficId}, ${format}`)
-    const response = await fetch(`${this.baseUrl}/api/generate`, {
+    const response = await fetch(`${this.baseUrl}/api/generate/call`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
-          trafficId,
+          traffic_id: trafficId,
           format: format
         } as GenerateRequest)
+      });
+    const data = await response.json();
+    return data;
+  }
+
+  async generateModel(jsonPayload: string, format: ModelFormat, root_element: string): Promise<GenerateResponse> {
+    const url = `${this.baseUrl}/api/generate/model`;
+    const reqBody = JSON.stringify({
+          json_payload: jsonPayload,
+          format,
+          root_element
+        } as GenerateModelRequest);
+    console.log(`generateModel url: ${url}, body: ${reqBody}`)
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: reqBody
       });
     const data = await response.json();
     return data;

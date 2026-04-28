@@ -48,14 +48,23 @@ export const GENERATOR_FORMATS :GeneratorFormat[] = [
   'JAVA_CLIENT_JDK_HTTP', 'JAVA_CLIENT_APACHE_HTTP', 'JAVA_CLIENT_REST_TEMPLATE', 'JAVA_CLIENT_WEB_FLUX'
 ]
 
+export type ModelFormat =
+  'CS' | 'JAVA' | 'TYPESCRIPT';
+
 export interface GenerateRequest {
-  trafficId: number,
+  traffic_id: number,
   format: GeneratorFormat,
+}
+
+export interface GenerateModelRequest {
+  json_payload: string,
+  format: ModelFormat,
+  root_element: string,
 }
 
 export interface GeneratedFile {
   file_name: string,
-  content: string
+  content: string,
 }
 
 export interface GenerateResponse {

@@ -1,4 +1,5 @@
 import uvicorn
+import json
 from datetime import datetime
 from typing import Any, List, Optional
 from fastapi import FastAPI, HTTPException, Depends
@@ -13,6 +14,7 @@ from .crud import (
     update_service,
 )
 from .models import (
+    GenerateModelRequest,
     GenerateRequest,
     GenerateResponse,
     MappedService,
@@ -22,7 +24,7 @@ from .models import (
 )
 from .str_util import parse_datetime
 from .engine import Engine, EngineDep
-from ..generate import generate_code
+from ..generate import generate_code, generate_model
 from .app_state import AppState
 
 logger = logging.getLogger(__name__)
@@ -98,14 +100,19 @@ async def get_traffics(
 async def remove_traffic(session: SessionDep, id: int) -> dict:
     deleted = delete_traffic_by_id(session, id)
     print(("deleted" if deleted else "not deleted") + f" traffic {id}")
-    return {
-        "deleted": deleted
-    }
+    return {"deleted": deleted}
 
 
-@app.post("/api/generate")
-async def post_generate(request: GenerateRequest) -> GenerateResponse:
+@app.post("/api/generate/call")
+async def post_generate_call(request: GenerateRequest) -> GenerateResponse:
+    print(f"post_generate_call request={request.traffic_id}")
     return await generate_code(request)
+
+
+@app.post("/api/generate/model")
+async def post_generate_model(request: GenerateModelRequest) -> GenerateResponse:
+    print(f"post_generate_model format={request.format} elem={request.root_element} payload={request.json_payload}")
+    return await generate_model(request)
 
 
 @app.get("/api/next-port")

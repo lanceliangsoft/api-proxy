@@ -1,3 +1,5 @@
+import { GeneratedFile } from "../services/model";
+
 export interface GroupedValues<T> {
   title: string;
   values: T[];
@@ -42,4 +44,24 @@ export function isJson(str: string | null | undefined): boolean {
   return str !== null && str !== undefined
     && (str.startsWith('{') && str.endsWith('}')
       || (str.startsWith('[') && str.endsWith(']')));
+}
+
+export function formatJson(value: string, pretty: boolean): string {
+  if (isJson(value as string)) {
+    try {
+      const obj = JSON.parse(value);
+      if (pretty) {
+        return JSON.stringify(obj, null, 2);
+      } else {
+        return JSON.stringify(obj);
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  }
+  return value;
+}
+
+export function mergeFiles(files: GeneratedFile[], comment_symbol: string): string {
+    return files.map(file => `${comment_symbol} ${file.file_name}\n${file.content}\n`).join("\n");
 }
