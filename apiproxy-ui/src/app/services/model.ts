@@ -49,7 +49,7 @@ export const GENERATOR_FORMATS :GeneratorFormat[] = [
 ]
 
 export type ModelFormat =
-  'CS' | 'JAVA' | 'TYPESCRIPT';
+  'CS' | 'JAVA' | 'TYPESCRIPT' | 'PYTHON' | 'GO';
 
 export interface GenerateRequest {
   traffic_id: number,

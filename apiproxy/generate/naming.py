@@ -59,5 +59,10 @@ def camel_case(name: str) -> str:
     return words[0].lower() + "".join(s.capitalize() for s in words[1:])
 
 
+def snake_case(name: str) -> str:
+    words = split_name(name)
+    return "_".join(word.lower() for word in words)
+
+
 def singular_format(word: str) -> str:
     return re.sub(r"((?<=s)e)?s$", "", word)

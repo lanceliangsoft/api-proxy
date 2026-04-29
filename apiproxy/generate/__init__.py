@@ -18,6 +18,8 @@ from .java_model import generate_java_models
 from .golang import generate_go_fiber_api
 from .rust import generate_rust_actix_api
 from .ts_model import generate_typescript_models
+from .py_model import generate_python_models
+from .go_model import generate_go_models
 
 generators: Dict[str, Callable] = {
     "CURL": generate_curl,
@@ -35,6 +37,8 @@ model_generators: Dict[str, Callable] = {
     "CS": generate_cs_models,
     "JAVA": generate_java_models,
     "TYPESCRIPT": generate_typescript_models,
+    "PYTHON": generate_python_models,
+    "GO": generate_go_models,
     # TODO: add more generators here
 }
 

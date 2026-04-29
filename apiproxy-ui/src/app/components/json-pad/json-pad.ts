@@ -23,6 +23,8 @@ export class JsonPad {
   csCode = signal<string>("");
   javaCode = signal<string>("");
   tsCode = signal<string>("");
+  pyCode = signal<string>("");
+  goCode = signal<string>("");
 
   async formattedChange() {
     this.formatted.update(checked => {
@@ -48,5 +50,11 @@ export class JsonPad {
 
     const tsResp = await this._consoleService.generateModel(this.json(), "TYPESCRIPT", this.rootType());
     this.tsCode.set(mergeFiles(tsResp.files, "//"));
+
+    const pyResp = await this._consoleService.generateModel(this.json(), "PYTHON", this.rootType());
+    this.pyCode.set(mergeFiles(pyResp.files, "#"));
+
+    const goResp = await this._consoleService.generateModel(this.json(), "GO", this.rootType());
+    this.goCode.set(mergeFiles(goResp.files, "//"));
   }
 }
