@@ -3,8 +3,11 @@
     <div class="left-side">
       <div class="vbox">
         <div class="title">JSON:</div>
-        <button matButton="outlined" (click)="format()">Format</button>
-        <button matButton="outlined" (click)="compact()">Compact</button>
+        <mat-slide-toggle [checked]="formatted()" (click)="formattedChange()">Format</mat-slide-toggle>
+        <mat-form-field>
+          <mat-label>Root Type</mat-label>
+          <input matInput #me [(ngModel)]="rootType" [class]="me.textContent === '' ? 'error' : ''"/>
+        </mat-form-field>
         <button matButton="filled" (click)="generate()">Generate</button>
       </div>
       <textarea [(ngModel)]="json"></textarea>

@@ -1,7 +1,7 @@
 from typing import Dict, List, Optional
 from datetime import datetime
 from sqlmodel import SQLModel, Field, Column, LargeBinary, DateTime, JSON
-
+from pydantic import BaseModel
 
 class HttpRequest:
     method: str
@@ -36,28 +36,28 @@ class HttpResponse:
 
 
 # rest
-class SwitchServiceRequest(SQLModel):
+class SwitchServiceRequest(BaseModel):
     name: str
     active: bool
 
 
-class GenerateRequest(SQLModel):
+class GenerateRequest(BaseModel):
     traffic_id: int
     format: str
 
 
-class GenerateModelRequest(SQLModel):
+class GenerateModelRequest(BaseModel):
     json_payload: str
     format: str
     root_element: str
 
 
-class GeneratedFile(SQLModel):
+class GeneratedFile(BaseModel):
     file_name: str
     content: str
 
 
-class GenerateResponse(SQLModel):
+class GenerateResponse(BaseModel):
     files: List[GeneratedFile]
 
 
