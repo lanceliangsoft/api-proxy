@@ -1,7 +1,7 @@
 import { Component, computed, effect, inject, OnDestroy, OnInit, signal } from '@angular/core';
-import { MatListModule, MatListOption } from '@angular/material/list';
+import { MatListModule } from '@angular/material/list';
 import { ConsoleService } from '../../services/service';
-import { ServiceItem, ServicesInfo, Traffic } from '../../services/model';
+import { ServiceItem, Traffic } from '../../services/model';
 import { MatButtonModule } from '@angular/material/button';
 import { TrafficDetail } from '../traffic-detail/traffic-detail';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -17,7 +17,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatTimepickerModule } from '@angular/material/timepicker';
 import { FormsModule } from '@angular/forms';
 import { EventService } from '../../services/eventService';
-import { Observable, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 
@@ -53,7 +53,8 @@ export class Dashboard implements OnInit, OnDestroy {
 
   constructor() {
     effect(() => {
-      console.log(`newTraffics signals ${JSON.stringify(this.newTraffics())}`);
+      const notice = this.newTraffics();
+      console.log(`newTraffics signals ${JSON.stringify(notice)}`);
       this.refreshTraffics();
     });
   }
@@ -72,23 +73,9 @@ export class Dashboard implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.refresh();
-  
-    // -- Old style --
-    // this._trafficsSubscription = this._eventService.socket$.subscribe({
-    //   next: (val) => {
-    //     console.log(`received: ${JSON.stringify(val)}`);
-    //     this.refreshTraffics();
-    //   },
-    //   error: (err) => console.error(err),
-    //   complete: () => console.log('Stream completed'),
-    // });
   }
 
   ngOnDestroy(): void {
-    // if (this._trafficsSubscription) {
-    //   this._trafficsSubscription.unsubscribe();
-    // }
-
     this._eventService.close();
   }
 
