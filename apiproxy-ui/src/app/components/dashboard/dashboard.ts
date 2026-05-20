@@ -17,7 +17,6 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatTimepickerModule } from '@angular/material/timepicker';
 import { FormsModule } from '@angular/forms';
 import { EventService } from '../../services/eventService';
-import { Subscription } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 
@@ -34,7 +33,6 @@ export type DetailViewName = 'traffic' | 'service' | 'unmapped-group';
 export class Dashboard implements OnInit, OnDestroy {
   private _consoleService = inject(ConsoleService);
   private _eventService = inject(EventService);
-  private _trafficsSubscription!: Subscription;
   
   newTraffics = toSignal(this._eventService.socket$);
 
