@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --version)",
+      "Bash(rustc --version)",
+      "Bash(cargo --version)",
+      "Bash(npm create *)",
+      "Bash(Move-Item \"f:\\\\study\\\\rust\\\\tauri-app\\\\readme.md\" \"f:\\\\study\\\\rust\\\\readme_temp.md\")",
+      "Bash(npm install *)",
+      "Bash(npx @tauri-apps/cli init)",
+      "Bash(npx tauri *)",
+      "Bash(cargo check *)",
+      "Bash(magick --version)",
+      "Bash(convert --version)",
+      "Bash(node -e ' *)",
+      "Bash(node -e \"const sharp = require\\('sharp'\\); console.log\\('sharp available'\\)\")",
+      "Bash(npx tsc *)",
+      "Bash(dir \"f:\\\\myprj\\\\github\\\\rest-code\\\\webview-ui\\\\src\" /s /b)",
+      "PowerShell(Get-ChildItem -Path \"f:\\\\myprj\\\\github\\\\rest-code\\\\webview-ui\\\\src\" -Recurse | Select-Object FullName | ForEach-Object {$_.FullName})"
+    ]
+  }
+}

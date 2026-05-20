@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { MatListModule, MatListOption } from '@angular/material/list';
 import { ConsoleService } from '../../services/service';
 import { ServiceItem, ServicesInfo, Traffic } from '../../services/model';
@@ -16,6 +16,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatTimepickerModule } from '@angular/material/timepicker';
 import { FormsModule } from '@angular/forms';
+import { EventService } from '../../services/eventService';
+import { Observable, Subscription } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 
 export type DetailViewName = 'traffic' | 'service' | 'unmapped-group';
@@ -28,8 +31,13 @@ export type DetailViewName = 'traffic' | 'service' | 'unmapped-group';
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
-export class Dashboard implements OnInit {
+export class Dashboard implements OnInit, OnDestroy {
   private _consoleService = inject(ConsoleService);
+  private _eventService = inject(EventService);
+  private _trafficsSubscription!: Subscription;
+  
+  newTraffics = toSignal(this._eventService.socket$);
+
   services = signal<ServiceItem[]>([]);
   traffics = signal<Traffic[]>([]);
   selectedService = signal<ServiceItem | undefined>(undefined);
@@ -45,7 +53,8 @@ export class Dashboard implements OnInit {
 
   constructor() {
     effect(() => {
-
+      console.log(`newTraffics signals ${JSON.stringify(this.newTraffics())}`);
+      this.refreshTraffics();
     });
   }
 
@@ -63,6 +72,24 @@ export class Dashboard implements OnInit {
 
   ngOnInit(): void {
     this.refresh();
+  
+    // -- Old style --
+    // this._trafficsSubscription = this._eventService.socket$.subscribe({
+    //   next: (val) => {
+    //     console.log(`received: ${JSON.stringify(val)}`);
+    //     this.refreshTraffics();
+    //   },
+    //   error: (err) => console.error(err),
+    //   complete: () => console.log('Stream completed'),
+    // });
+  }
+
+  ngOnDestroy(): void {
+    // if (this._trafficsSubscription) {
+    //   this._trafficsSubscription.unsubscribe();
+    // }
+
+    this._eventService.close();
   }
 
   addService() {

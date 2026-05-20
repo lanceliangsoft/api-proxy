@@ -2,7 +2,7 @@ import uvicorn
 import json
 from datetime import datetime
 from typing import Any, List, Optional
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -26,17 +26,23 @@ from .str_util import parse_datetime
 from .engine import Engine, EngineDep
 from ..generate import generate_code, generate_model
 from .app_state import AppState
+from .mcp_server import mcp
 
 logger = logging.getLogger(__name__)
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:4200/", "*"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:4200",
+        "*"
+    ],
     allow_methods=["GET", "OPTIONS", "POST", "PUT", "DELETE"],
     allow_headers=["*"],
 )
 
 app.mount("/console", StaticFiles(directory="static/browser", html=True), name="static")
+app.mount("/mcp", mcp.sse_app())
 
 
 @app.get("/")
@@ -101,6 +107,20 @@ async def remove_traffic(session: SessionDep, id: int) -> dict:
     deleted = delete_traffic_by_id(session, id)
     print(("deleted" if deleted else "not deleted") + f" traffic {id}")
     return {"deleted": deleted}
+
+
+# Notifies clients for new traffics.
+@app.websocket("/ws/traffics")
+async def websocket_traffics(websocket: WebSocket):
+
+
+    await websocket.accept()
+    print("accepted a websocket connection.")
+    while True:
+        await AppState.event_traffics.wait()
+        AppState.event_traffics.clear()
+        print('detected event of traffics, sending a notice.')
+        await websocket.send_text('{\"data\":\"new traffics\"}')
 
 
 @app.post("/api/generate/call")

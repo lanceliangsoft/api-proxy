@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Read(//f/study/rust/rust-alt/**)",
+      "Bash(cargo build *)",
+      "Bash(cargo run *)",
+      "Bash(Start-Process -FilePath \"cargo\" -ArgumentList \"run\",\"--bin\",\"rust-alt-server\",\"--\",\"9257\" -NoNewWindow -PassThru)",
+      "Bash(Out-Null)",
+      "Bash(Start-Sleep -Seconds 3)",
+      "PowerShell(cd \"f:\\\\study\\\\rust\\\\rust-alt\"; $proc = Start-Process -FilePath \"cargo\" -ArgumentList \"run\",\"--bin\",\"rust-alt-server\",\"--\",\"9257\" -PassThru -NoNewWindow; Start-Sleep -Seconds 4; echo \"pid=$\\($proc.Id\\)\")",
+      "PowerShell(Stop-Process -Name \"rust-alt-server\" -Force -ErrorAction SilentlyContinue)",
+      "PowerShell(cd \"f:\\\\study\\\\rust\\\\rust-alt\"; $proc = Start-Process -FilePath \"target\\\\debug\\\\rust-alt-server.exe\" -ArgumentList \"9257\" -PassThru -NoNewWindow; Start-Sleep -Seconds 2; echo \"server pid=$\\($proc.Id\\)\")",
+      "Read(//f/study/js/ts-gen/**)",
+      "Bash(node dist/cli.js examples/models.ts -f zod)",
+      "Bash(node dist/cli.js examples/models.ts -f class --validation --defaults -m User)",
+      "Bash(node dist/cli.js examples/models.ts -f mock)",
+      "Bash(node dist/cli.js examples/models.ts -f json-schema -m Product)"
+    ],
+    "additionalDirectories": [
+      "f:\\study\\rust\\rust-alt",
+      "f:\\study\\js\\ts-gen"
+    ]
+  }
+}

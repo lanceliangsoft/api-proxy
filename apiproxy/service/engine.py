@@ -38,6 +38,7 @@ def start_servers():
         if service.name != 'console-api' and service.active:
             engine.start_service(service.name)
 
+
 class Engine:
     def __init__(self, session: SessionDep):
         self._session = session

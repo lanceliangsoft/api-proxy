@@ -25,6 +25,8 @@ class AppState:
     servers: Dict[str, asyncio.Server] = {}
     httpds: Dict[str, http.server.HTTPServer] = {}
     engine: Optional[Any] = None
+    # notifies for new traffics, use asyncio.Event for async codes.
+    event_traffics = asyncio.Event()
 
     @classmethod
     def get_env(cls) -> str:
@@ -86,7 +88,11 @@ class AppState:
     def add_traffic(cls, traffic: Traffic) -> Traffic:
         with next(get_db()) as session:
             new_traffic = create_traffic(session, TrafficEntity.model_validate(traffic))
-            return Traffic.model_validate(new_traffic)
+            result = Traffic.model_validate(new_traffic)
+            # notifies the event.
+            print("set the event")
+            cls.event_traffics.set()
+            return result
 
     @classmethod
     def get_traffic(cls, id: int) -> Optional[Traffic]:
