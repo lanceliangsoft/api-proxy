@@ -24,6 +24,7 @@ class AppState:
     services: List[MappedService] = []
     servers: Dict[str, asyncio.Server] = {}
     httpds: Dict[str, http.server.HTTPServer] = {}
+    traced_hosts: List[str] = []
     engine: Optional[Any] = None
     # notifies for new traffics, use asyncio.Event for async codes.
     event_traffics = asyncio.Event()

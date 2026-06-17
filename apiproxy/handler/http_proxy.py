@@ -47,6 +47,7 @@ class HttpProxyConnection(BaseConnection):
         self._resp_len = 0
         self._resp_chunked = False
         self._traffic: Optional[Traffic] = None
+        self._trace_ssl = False
 
     async def serve(self) -> None:
         print("started to serve...")
@@ -109,7 +110,8 @@ class HttpProxyConnection(BaseConnection):
             host, port
         )
         print(f"connected to {host}:{port}.")
-        if port == 443:
+        self._trace_ssl = port == 443 and f"{host}:{port}" in AppState.traced_hosts
+        if self._trace_ssl:
             self._target_host = f"https://{host}"
             print("Starting SSL handshake with target server...")
             client_ssl_context = ssl.create_default_context()
@@ -134,7 +136,7 @@ class HttpProxyConnection(BaseConnection):
         self._writer.write(b"HTTP/1.1 200 Connection Established\r\n\r\n")
         await self._writer.drain()
 
-        if self._ssl_context:
+        if self._trace_ssl and self._ssl_context:
             print("Starting SSL handshake with client...")
             await self._writer.start_tls(self._ssl_context)
             print("SSL handshake with client completed")
@@ -154,7 +156,8 @@ class HttpProxyConnection(BaseConnection):
                 if not data or len(data) == 0:
                     break
                 print(f"{desc} {len(data)} bytes: {data[:100]!r}...")
-                self._analyze_http(data, desc)
+                if self._trace_ssl:
+                    self._analyze_http(data, desc)
                 writer.write(data)
                 await writer.drain()
         except Exception as e:

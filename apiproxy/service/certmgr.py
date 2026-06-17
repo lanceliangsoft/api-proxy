@@ -5,10 +5,9 @@ from .str_util import trim_indent
 
 
 def make_self_signed_certificate(cn: str, alt_domains: List[str], output_dir: str):
-    san_file = tempfile.TemporaryFile(
+    san_file = tempfile.NamedTemporaryFile(
         prefix="san", suffix=".cnf", delete_on_close=False
     )
-    san_file.close()
     
     print(f"san file={san_file.name}")
     desc = trim_indent(f"""[req]
@@ -43,7 +42,7 @@ def make_self_signed_certificate(cn: str, alt_domains: List[str], output_dir: st
 
     command = trim_indent(
         "openssl req -x509 -nodes -days 365 -newkey rsa:2048 "
-        f"-keyout {output_dir}\\server.key -out {output_dir}\\server.crt "
+        f"-keyout {output_dir}/server.key -out {output_dir}/server.crt "
         f"-config {san_file.name} -extensions v3_req")
     print(command)
     os.system(command)
